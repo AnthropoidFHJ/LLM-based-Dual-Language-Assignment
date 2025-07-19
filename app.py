@@ -30,9 +30,10 @@ def query_pinecone(query_text):
 
 def ask_llm(context, question):
     prompt = (
-    "You are a helpful and concise assistant.\n"
+    "You are a precise and factual assistant.\n"
     "Answer the question using only the provided context below.\n"
-    "Be brief: limit your response to one clear sentence. No explanations or extra detail.\n\n"
+    "Keep responses to 1–2 concise sentences: include key numbers/terms\n\n"
+    "if the context need analysis, analysis it and provide the answer in short.\n\n"
     f"Context:\n{context}\n\n"
     f"Question:\n{question}\n\n"
     "Answer:"
@@ -40,7 +41,7 @@ def ask_llm(context, question):
     payload = {
         "model": Config.CHAT_MODEL,
         "messages": [
-            {"role": "system", "content": "You are a helpful WASH Report Assistant."},
+            {"role": "system", "content": "You are a precise WASH Report Assistant."},
             {"role": "user", "content": prompt}
         ],
         "temperature": 0.3
@@ -54,11 +55,16 @@ def ask_llm(context, question):
         return "No answer returned from LLM (API limitation or quota/rate issue)."
 
 def translate_to_bangla(english_text):
-    prompt_bn = f"Translate this to Bangla: {english_text}"
+    prompt_bn = (
+    "You are a precise translator.\n"
+    "Translate the following English text to Bangla.\n"
+    "Keep the translation concise and accurate, preserving the original meaning.\n\n"
+    "Don't include any additional explanations or filler words.\n\n"
+    f"Translate this to Bangla: {english_text}")
     payload = {
         "model": Config.CHAT_MODEL,
         "messages": [
-            {"role": "system", "content": "You are a helpful translator."},
+            {"role": "system", "content": "You are a precise translator."},
             {"role": "user", "content": prompt_bn}
         ]
     }
