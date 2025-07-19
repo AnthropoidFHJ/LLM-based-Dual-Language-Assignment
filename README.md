@@ -1,5 +1,7 @@
 ## WASH Report Assistant: Dual-Language LLM Q&A System ##
 
+![ACME AI Assignment Demo](Output/ACME_AI_Assignment.gif)
+
 **Project Overview**
 
 **WASH Report Assistant** is an AI-powered chatbot designed to answer questions about WASH (Water, Sanitation, and Hygiene) data using curated Excel datasets. The system leverages a retrieval-augmented generation (RAG) pipeline with **LLaMA3-70B via Groq API** for concise, context-aware answers in both English and Bangla. The backend is built with Flask, using **Sentence Transformers** for embeddings and **Pinecone** for semantic vector search.
