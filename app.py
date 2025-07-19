@@ -32,8 +32,8 @@ def ask_llm(context, question):
     prompt = (
     "You are a precise and factual assistant.\n"
     "Answer the question using only the provided context below.\n"
-    "Keep responses to 1–2 concise sentences: include key numbers/terms\n\n"
-    "if the context need analysis, analysis it and provide the answer in short.\n\n"
+    "Keep responses to 1–2 concise sentences: include key numbers/terms without explaination\n\n"
+    "if the context need analysis, analysis it and provide the answer in short as possible.\n\n"
     f"Context:\n{context}\n\n"
     f"Question:\n{question}\n\n"
     "Answer:"
