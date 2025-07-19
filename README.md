@@ -44,7 +44,7 @@
 
 ```bash
 git clone https://github.com/AnthropoidFHJ/LLM-based-Dual-Language-Assignment
-cd {path}\LLM-based-Dual-Language-Assignment
+cd {path}/LLM-based-Dual-Language-Assignment
 ```
 
 2. **Create the Environment**
