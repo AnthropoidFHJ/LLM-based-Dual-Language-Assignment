@@ -1,0 +1,8 @@
+flask
+pinecone
+python-dotenv
+pandas
+openpyxl
+tiktoken
+sentence-transformers
+torch
