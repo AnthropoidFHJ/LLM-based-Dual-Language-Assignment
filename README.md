@@ -41,8 +41,8 @@
 1. **Clone the Repository**
 
 ```bash
-git clone https://github.com/YourUsername/LLM-based-Dual-Language-Assignment
-cd LLM-based-Dual-Language-Assignment
+git clone https://github.com/AnthropoidFHJ/LLM-based-Dual-Language-Assignment
+cd {path}\LLM-based-Dual-Language-Assignment
 ```
 
 2. **Create the Environment**
@@ -84,12 +84,6 @@ This will sequentially run:
 - `pinecone_db/embeddings.py`
 - `app.py`
 
-7. **Run the Application (if not using main.py)**
-
-```bash
-python app.py
-```
-
 Visit: [http://localhost:8085](http://localhost:8085)
 
 ---
@@ -129,5 +123,5 @@ Excel Data → Cleaned Data → Thematic Chunks → Embeddings → Pinecone Inde
 
 ---
 
-**Author:** Ferdous Hasan 
+**Author:** Ferdous Hasan  
 **Date:** 19 July 2025
