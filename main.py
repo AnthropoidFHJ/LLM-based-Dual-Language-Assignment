@@ -30,7 +30,6 @@ if __name__ == "__main__":
         default=[
             "data_processing/data_cleaner.py",
             "data_processing/chunker.py",
-            "pinecone_db/pinecone_setup.py",
             "pinecone_db/embeddings.py",
             "app.py",
         ],

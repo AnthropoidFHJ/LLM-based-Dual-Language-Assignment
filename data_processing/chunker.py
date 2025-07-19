@@ -1,74 +1,66 @@
 import os
-import sys
 import pandas as pd
 
-def chunk_excel_data(cleaned_file, chunk_size=100):
-    """
-    Reads cleaned Excel sheets and breaks data into text chunks.
-
-    Args:
-        cleaned_file (str): Path to cleaned Excel file
-        chunk_size (int): Maximum number of words per chunk
-
-    Returns:
-        List of textual chunks
-    """
+def thematic_chunk_excel(cleaned_file, chunk_size=100):
     if not os.path.exists(cleaned_file):
-        raise FileNotFoundError(f"❌ '{cleaned_file}' not found. Run the cleaner first.")
+        raise FileNotFoundError(f"'{cleaned_file}' not found.")
 
     xl = pd.ExcelFile(cleaned_file)
     all_chunks = []
 
     for sheet_name in xl.sheet_names:
-        df = xl.parse(sheet_name)
-        df.dropna(how='all', axis=0, inplace=True)
-        df.dropna(how='all', axis=1, inplace=True)
-
+        df = xl.parse(sheet_name).dropna(how='all').dropna(axis=1, how='all')
         if df.empty:
-            print(f"⚠️ Sheet '{sheet_name}' is empty after cleaning. Skipping.")
             continue
+        if 'Topic' in df.columns:
+            for topic, group in df.groupby('Topic'):
+                text = "\n".join([
+                    " | ".join([f"{col}: {val}" for col, val in row.items() if pd.notna(val)])
+                    for _, row in group.iterrows()
+                ])
+                if text:
+                    all_chunks.append({'text': text, 'topic': topic, 'sheet': sheet_name})
+        else:
+            for _, row in df.iterrows():
+                text = " | ".join([f"{col}: {val}" for col, val in row.items() if pd.notna(val)])
+                if text:
+                    all_chunks.append({'text': text, 'topic': None, 'sheet': sheet_name})
 
-        print(f"📄 Chunking sheet: {sheet_name} ({len(df)} rows)")
-
-        for _, row in df.iterrows():
-            text = " | ".join([f"{col}: {val}" for col, val in row.items() if pd.notna(val)])
-            if text:
-                all_chunks.append(text)
-
-    # Split into ~chunk_size-word blocks
     final_chunks = []
     temp = ""
+    temp_meta = None
     for chunk in all_chunks:
-        if len(temp.split()) + len(chunk.split()) <= chunk_size:
-            temp += " " + chunk
+        if temp_meta is None:
+            temp_meta = chunk
+        if len(temp.split()) + len(chunk['text'].split()) <= chunk_size and (temp_meta['topic'] == chunk['topic']):
+            temp += " " + chunk['text']
         else:
-            final_chunks.append(temp.strip())
-            temp = chunk
+            if temp:
+                final_chunks.append({'text': temp.strip(), 'topic': temp_meta['topic'], 'sheet': temp_meta['sheet']})
+            temp = chunk['text']
+            temp_meta = chunk
     if temp:
-        final_chunks.append(temp.strip())
+        final_chunks.append({'text': temp.strip(), 'topic': temp_meta['topic'], 'sheet': temp_meta['sheet']})
+
+    for i, c in enumerate(final_chunks):
+        print(f"[Chunk {i+1}] Topic: {c['topic']} | Sheet: {c['sheet']} | Words: {len(c['text'].split())}")
 
     return final_chunks
 
 def save_chunks_to_file(chunks, output_file="data/chunks.txt"):
-    """Write formatted chunks to file."""
     os.makedirs(os.path.dirname(output_file), exist_ok=True)
     with open(output_file, "w", encoding="utf-8") as f:
         for i, chunk in enumerate(chunks):
-            f.write(f"[Chunk {i+1}]\n{chunk}\n\n")
-    print(f"[✔] Saved {len(chunks)} chunks to {output_file}")
+            f.write(f"[Chunk {i+1}] Topic: {chunk['topic']} | Sheet: {chunk['sheet']}\n{chunk['text']}\n\n")
+    print(f"Saved {len(chunks)} chunks to {output_file}")
 
 if __name__ == "__main__":
     cleaned_path = "data/cleaned_Data.xlsx"
     chunk_output = "data/chunks.txt"
-    chunk_size = 100  # or get from CLI if you want flexibility
+    chunk_size = 100
 
     try:
-        print(f"🔍 Loading cleaned Excel file: {cleaned_path}")
-        chunks = chunk_excel_data(cleaned_path, chunk_size)
+        chunks = thematic_chunk_excel(cleaned_path, chunk_size)
         save_chunks_to_file(chunks, chunk_output)
-    except FileNotFoundError as e:
-        print(e)
-        sys.exit(1)
     except Exception as e:
-        print(f"❌ Unexpected error: {e}")
-        sys.exit(1)
+        print(e)

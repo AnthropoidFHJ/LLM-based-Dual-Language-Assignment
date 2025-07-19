@@ -1,49 +1,38 @@
-import os
 import pandas as pd
+from openpyxl import load_workbook
+
+def extract_range_to_df(ws, cell_range):
+    data = ws[cell_range]
+    rows = [[cell.value for cell in row] for row in data]
+    df = pd.DataFrame(rows[1:], columns=rows[0]) if len(rows) > 1 else pd.DataFrame(rows)
+    return df
 
 def clean_excel_file(input_file, output_file):
-    """
-    Cleans all sheets of an Excel file by removing empty rows/columns,
-    non-tabular content, and saves the combined clean data to a new Excel file.
-
-    Args:
-        input_file (str): Path to the original Excel file
-        output_file (str): Path where cleaned Excel file will be saved
-    """
-    xl = pd.ExcelFile(input_file)
-    print(f"[INFO] Found sheets: {xl.sheet_names}")
-
+    wb = load_workbook(input_file, data_only=True)
     writer = pd.ExcelWriter(output_file, engine='openpyxl')
 
-    for sheet_name in xl.sheet_names:
-        try:
-            df = xl.parse(sheet_name)
+    if "Ladders" in wb.sheetnames:
+        ws = wb["Ladders"]
+        df = extract_range_to_df(ws, "B28:K35")
+        if not df.empty:
+            df.to_excel(writer, sheet_name="Ladders", index=False)
 
-            # Drop empty rows/columns
-            df.dropna(axis=0, how='all', inplace=True)
-            df.dropna(axis=1, how='all', inplace=True)
+    if "Estimates" in wb.sheetnames:
+        ws = wb["Estimates"]
+        df = extract_range_to_df(ws, "A2:AD89")
+        if not df.empty:
+            df.to_excel(writer, sheet_name="Estimates", index=False)
 
-            # Drop weak rows (very sparse)
-            df = df[df.count(axis=1) > 2]
-
-            # Clean up column names
-            df.columns = [str(col).strip() for col in df.columns]
-            df = df.loc[:, ~df.columns.str.contains('Unnamed', na=False)]
-
+    for sheet in ["Data Summary", "Water Data", "Sanitation Data", "Wastewater Data", "Hygiene Data", "Menstrual Health Data", "Population"]:
+        if sheet in wb.sheetnames:
+            df = pd.read_excel(input_file, sheet_name=sheet)
             if not df.empty:
-                df.to_excel(writer, sheet_name=sheet_name[:31], index=False)
-                print(f"[✓] Cleaned sheet '{sheet_name}' added to {output_file}")
-            else:
-                print(f"[!] Sheet '{sheet_name}' empty after cleaning. Skipped.")
-
-        except Exception as e:
-            print(f"[x] Failed to clean sheet '{sheet_name}': {e}")
+                df.to_excel(writer, sheet_name=sheet[:31], index=False)
 
     writer.close()
-    print(f"\n[✔] All cleaned sheets saved to: {output_file}")
+    print(f"Data extracted and saved to: {output_file}")
 
 if __name__ == "__main__":
     INPUT_PATH = "data/JMP_WASH_Data.xlsx"
     OUTPUT_PATH = "data/cleaned_Data.xlsx"
-
     clean_excel_file(INPUT_PATH, OUTPUT_PATH)
