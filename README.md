@@ -121,9 +121,5 @@ Excel Data → Cleaned Data → Thematic Chunks → Embeddings → Pinecone Inde
 
 ---
 
-**This project is developed as part of the ACME-AI Fellowship Assignment to provide users with fast, accurate, and AI-powered insights into WASH (Water, Sanitation, and Hygiene) data, accessible in both English and Bangla.**
-
----
-
 **Author:** Ferdous Hasan  
 **Date:** 19 July 2025
